@@ -1,0 +1,117 @@
+{
+  "generatedAtUtc": "2026-04-23T18:20:00Z",
+  "dataSource": "Demo placeholder while live feed is being wired",
+  "timezoneUsedForDailyBars": "Provider daily bars",
+  "symbolsIncluded": ["EUR/USD", "GBP/USD", "USD/JPY", "XAU/USD", "US30", "NAS100"],
+  "staleAfterMinutes": 90,
+  "markets": [
+    {
+      "symbol": "EUR/USD",
+      "price": 1.0874,
+      "previousDayHigh": 1.0886,
+      "previousDayLow": 1.0818,
+      "bias": "long",
+      "contextLine": "12 pips under PDH after higher low",
+      "buySetup": {
+        "title": "Pressure into PDH",
+        "entry": "Hold above 1.0886",
+        "target": "1.0910"
+      },
+      "sellSetup": {
+        "title": "False break above PDH",
+        "entry": "Failed hold above 1.0886",
+        "target": "1.0859"
+      }
+    },
+    {
+      "symbol": "GBP/USD",
+      "price": 1.2748,
+      "previousDayHigh": 1.2762,
+      "previousDayLow": 1.2699,
+      "bias": "long",
+      "contextLine": "Recovered fast after PDL sweep",
+      "buySetup": {
+        "title": "PDL sweep to reclaim",
+        "entry": "1.2738-1.2744",
+        "target": "1.2762"
+      },
+      "sellSetup": {
+        "title": "PDH trap in premium",
+        "entry": "1.2760 rejection",
+        "target": "1.2728"
+      }
+    },
+    {
+      "symbol": "USD/JPY",
+      "price": 154.62,
+      "previousDayHigh": 154.88,
+      "previousDayLow": 153.94,
+      "bias": "short",
+      "contextLine": "Still below PDH, weaker follow-through",
+      "buySetup": {
+        "title": "Break and hold above PDH",
+        "entry": "Above 154.88",
+        "target": "155.20"
+      },
+      "sellSetup": {
+        "title": "Failed breakout fade",
+        "entry": "Below 154.55 after rejection",
+        "target": "154.10"
+      }
+    },
+    {
+      "symbol": "XAU/USD",
+      "price": 2336.2,
+      "previousDayHigh": 2342.8,
+      "previousDayLow": 2318.6,
+      "bias": "short",
+      "contextLine": "Rejecting under PDH, watching for mean reversion",
+      "buySetup": {
+        "title": "PDL bounce recovery",
+        "entry": "2319-2322 reclaim",
+        "target": "2330"
+      },
+      "sellSetup": {
+        "title": "PDH rejection short",
+        "entry": "2339.8-2341.6",
+        "target": "2331.2"
+      }
+    },
+    {
+      "symbol": "US30",
+      "price": 39812,
+      "previousDayHigh": 39940,
+      "previousDayLow": 39510,
+      "bias": "neutral",
+      "contextLine": "Inside yesterday's range, waiting for expansion",
+      "buySetup": {
+        "title": "Range expansion long",
+        "entry": "39944 hold",
+        "target": "40080"
+      },
+      "sellSetup": {
+        "title": "PDL breakdown continuation",
+        "entry": "39500 retest from below",
+        "target": "39360"
+      }
+    },
+    {
+      "symbol": "NAS100",
+      "price": 18244,
+      "previousDayHigh": 18310,
+      "previousDayLow": 18102,
+      "bias": "long",
+      "contextLine": "Holding premium half of range",
+      "buySetup": {
+        "title": "Acceptance above range high",
+        "entry": "18314 retest",
+        "target": "18380"
+      },
+      "sellSetup": {
+        "title": "False breakout reversal",
+        "entry": "Back below 18310 after rejection",
+        "target": "18220"
+      }
+    }
+  ]
+}

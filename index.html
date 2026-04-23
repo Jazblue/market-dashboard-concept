@@ -3,214 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PDH / PDL Trade Map — Market Dashboard</title>
-  <meta name="description" content="A trader-style market dashboard built around the Previous Day High / Previous Day Low strategy, with market snapshot, buy and sell setups, rationale, and risk controls." />
+  <title>PDH / PDL Trade Map — Live Data Dashboard</title>
+  <meta name="description" content="Hourly-updated trading dashboard built around Previous Day High / Previous Day Low strategy logic." />
   <style>
     :root {
       --bg: #061018;
       --bg-2: #0b1724;
       --panel: rgba(10, 19, 31, 0.88);
-      --panel-2: rgba(14, 26, 42, 0.95);
       --line: rgba(148, 163, 184, 0.18);
       --text: #eef4ff;
       --muted: #97a8c3;
       --green: #22c55e;
-      --green-soft: rgba(34, 197, 94, 0.14);
       --red: #f87171;
-      --red-soft: rgba(248, 113, 113, 0.14);
       --amber: #fbbf24;
       --blue: #60a5fa;
-      --cyan: #22d3ee;
-      --shadow: 0 22px 55px rgba(0,0,0,0.34);
       --radius: 22px;
+      --shadow: 0 22px 55px rgba(0,0,0,0.34);
     }
-
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Inter, system-ui, sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), transparent 28%),
-        radial-gradient(circle at top right, rgba(96, 165, 250, 0.14), transparent 26%),
-        linear-gradient(180deg, #040b12 0%, #09121d 48%, #04080e 100%);
+      background: linear-gradient(180deg, #040b12 0%, #09121d 48%, #04080e 100%);
       line-height: 1.55;
     }
-
-    a { color: inherit; text-decoration: none; }
-    .container { width: min(1240px, calc(100% - 32px)); margin: 0 auto; }
-    .nav {
-      position: sticky; top: 0; z-index: 40;
-      backdrop-filter: blur(14px);
-      background: rgba(6, 16, 24, 0.82);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
-    }
-    .nav-inner {
-      display: flex; justify-content: space-between; align-items: center; gap: 16px;
-      padding: 16px 0;
-    }
-    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: 0.02em; }
-    .brand-mark {
-      width: 42px; height: 42px; border-radius: 14px;
-      display: grid; place-items: center;
-      background: linear-gradient(135deg, var(--blue), var(--green));
-      box-shadow: 0 14px 30px rgba(34, 197, 94, 0.18);
-    }
-    .nav-links { display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted); font-size: 0.95rem; }
-
-    .hero { padding: 68px 0 26px; }
-    .hero-grid {
-      display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 28px; align-items: center;
-    }
-    .tag, .pill {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 12px; border-radius: 999px;
-      border: 1px solid rgba(96, 165, 250, 0.18);
-      background: rgba(96, 165, 250, 0.08);
-      color: #d9e8ff; font-size: 0.84rem;
-    }
-    h1 {
-      margin: 18px 0 16px;
-      font-size: clamp(2.5rem, 5vw, 5rem);
-      line-height: 0.98;
-      letter-spacing: -0.045em;
-      max-width: 10.5ch;
-    }
-    .hero p { color: var(--muted); font-size: 1.05rem; max-width: 66ch; margin: 0 0 24px; }
-    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px; }
-    .button {
-      padding: 14px 18px; border-radius: 14px; font-weight: 700;
-      border: 1px solid transparent; transition: 0.18s ease;
-      display: inline-flex; align-items: center; gap: 8px;
-    }
-    .button:hover { transform: translateY(-1px); }
-    .button-primary { background: linear-gradient(135deg, #2563eb, #38bdf8); box-shadow: 0 16px 32px rgba(37, 99, 235, 0.28); }
-    .button-secondary { background: rgba(255,255,255,0.02); border-color: rgba(148, 163, 184, 0.16); color: #dbe6f7; }
-
-    .hero-stats, .grid, .cards, .setup-grid, .snapshot-grid, .footer-grid { display: grid; gap: 18px; }
-    .hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .panel, .card, .table-wrap, .setup-card, .risk-box {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-    .card { padding: 16px; }
-    .label { color: var(--muted); font-size: 0.84rem; }
-    .value { margin-top: 7px; font-size: 1.18rem; font-weight: 800; }
-    .up { color: var(--green); }
-    .down { color: var(--red); }
-    .warn { color: var(--amber); }
-
-    .terminal {
-      padding: 22px;
-      background: linear-gradient(180deg, rgba(11, 20, 32, 0.98), rgba(7, 14, 24, 0.94));
-    }
-    .terminal-head, .row, .mini-head, .setup-head, .footer-bar {
-      display: flex; justify-content: space-between; align-items: center; gap: 10px;
-    }
-    .terminal-head { margin-bottom: 18px; }
-    .terminal h2, h3, h4 { margin: 0; }
-    .clock { color: #d8fff2; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.18); padding: 8px 10px; border-radius: 999px; font-size: 0.84rem; }
-
-    .snapshot-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .quote {
-      padding: 14px; border-radius: 18px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(148, 163, 184, 0.12);
-    }
-    .quote .symbol { font-weight: 800; }
-    .quote .price { margin: 8px 0 4px; font-size: 1.22rem; font-weight: 800; }
-    .micro { color: var(--muted); font-size: 0.83rem; }
-    .spark {
-      margin-top: 10px; height: 42px; border-radius: 12px;
-      background:
-        linear-gradient(180deg, rgba(96,165,250,0.11), transparent),
-        repeating-linear-gradient(90deg, rgba(148,163,184,0.08), rgba(148,163,184,0.08) 1px, transparent 1px, transparent 24px),
-        linear-gradient(120deg, transparent 0 8%, rgba(34,197,94,0.45) 8% 14%, transparent 14% 20%, rgba(96,165,250,0.5) 20% 28%, transparent 28% 100%);
-      border: 1px solid rgba(148, 163, 184, 0.08);
-    }
-
-    section { padding: 34px 0; }
-    .section-head { margin-bottom: 18px; }
-    .section-head p { margin: 8px 0 0; color: var(--muted); max-width: 68ch; }
-
-    .grid-2 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 18px; }
-    .table-wrap { overflow: hidden; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(148, 163, 184, 0.11); }
-    th { font-size: 0.79rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: rgba(255,255,255,0.02); }
-    tr:last-child td { border-bottom: none; }
-    .bias-long, .bias-short, .bias-neutral {
-      display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 700;
-    }
-    .bias-long { color: #dfffea; background: var(--green-soft); }
-    .bias-short { color: #ffe1e1; background: var(--red-soft); }
-    .bias-neutral { color: #fff1c8; background: rgba(251,191,36,0.14); }
-
-    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .container { width: min(1220px, calc(100% - 32px)); margin: 0 auto; }
+    .nav { position: sticky; top: 0; z-index: 30; background: rgba(6,16,24,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(148,163,184,0.08); }
+    .nav-inner { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 0; }
+    .brand { font-weight: 800; }
+    .nav-links { display:flex; gap:16px; flex-wrap:wrap; color:var(--muted); font-size:0.95rem; }
+    .hero { padding: 56px 0 24px; }
+    .hero-grid, .cards, .setup-grid, .footer-grid { display:grid; gap:18px; }
+    .hero-grid { grid-template-columns: 1.1fr 0.9fr; align-items:start; }
+    .tag, .pill, .bias { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; font-size:0.84rem; }
+    .tag, .pill { border:1px solid rgba(96,165,250,0.18); background:rgba(96,165,250,0.08); }
+    h1 { margin:18px 0 12px; font-size:clamp(2.4rem,5vw,4.7rem); line-height:0.98; letter-spacing:-0.045em; max-width:11ch; }
+    p { margin:0 0 16px; }
+    .muted { color: var(--muted); }
+    .button-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; }
+    .button { padding:14px 18px; border-radius:14px; font-weight:700; border:1px solid transparent; }
+    .button.primary { background: linear-gradient(135deg, #2563eb, #38bdf8); }
+    .button.secondary { background: rgba(255,255,255,0.02); border-color: rgba(148,163,184,0.14); }
+    .panel, .card, .table-wrap, .setup-card, .risk-box { background: var(--panel); border:1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .card, .panel, .risk-box, .setup-card { padding: 18px; }
+    .stats { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:14px; margin-top:18px; }
+    .stat { background: rgba(255,255,255,0.03); border:1px solid rgba(148,163,184,0.1); border-radius:18px; padding:14px; }
+    .label { color: var(--muted); font-size:0.84rem; }
+    .value { font-size:1.15rem; font-weight:800; margin-top:6px; }
+    .snapshot-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:14px; }
+    .quote { padding:14px; border-radius:18px; background: rgba(255,255,255,0.03); border:1px solid rgba(148,163,184,0.1); }
+    .row { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .quote .symbol { font-weight:800; }
+    .quote .price { margin:8px 0 4px; font-size:1.2rem; font-weight:800; }
+    .bias.long { color:#dfffea; background: rgba(34,197,94,0.14); }
+    .bias.short { color:#ffe1e1; background: rgba(248,113,113,0.14); }
+    .bias.neutral { color:#fff1c8; background: rgba(251,191,36,0.14); }
+    section { padding: 28px 0; }
+    .section-head { margin-bottom:18px; }
+    .grid-2 { display:grid; grid-template-columns: 1.2fr 0.8fr; gap:18px; }
+    .table-wrap { overflow:auto; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding: 14px 16px; text-align:left; border-bottom:1px solid rgba(148,163,184,0.11); }
+    th { font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color: var(--muted); }
     .setup-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    .setup-card { padding: 18px; }
-    .setup-card.long { border-color: rgba(34, 197, 94, 0.22); }
-    .setup-card.short { border-color: rgba(248, 113, 113, 0.22); }
-    .rank {
-      width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; font-weight: 800;
-      background: rgba(255,255,255,0.06); color: #dbe7f8;
-    }
-    .setup-head { margin-bottom: 14px; align-items: flex-start; }
-    .setup-card h4 { font-size: 1.02rem; }
-    .target-line { margin: 12px 0; color: #dbe7f8; font-weight: 600; }
-    .setup-card ul { margin: 12px 0 0 18px; padding: 0; color: var(--muted); }
-    .setup-card li + li { margin-top: 6px; }
-
-    .explain {
-      padding: 22px;
-      background: linear-gradient(180deg, rgba(12,24,39,0.96), rgba(9,17,28,0.92));
-    }
-    .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
-    .step {
-      padding: 16px; border-radius: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(148,163,184,0.1);
-    }
-    .step-num {
-      width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; margin-bottom: 12px;
-      background: rgba(96,165,250,0.12); color: #cfe3ff; font-weight: 800;
-    }
-
-    .risk-box { padding: 24px; background: linear-gradient(180deg, rgba(41, 15, 18, 0.92), rgba(18, 9, 12, 0.96)); border-color: rgba(248,113,113,0.18); }
-    .risk-list { margin: 14px 0 0 18px; color: #f5c7c7; }
-    .risk-list li + li { margin-top: 8px; }
-    footer { padding: 24px 0 50px; }
-    .footer-grid { grid-template-columns: 1fr auto; align-items: center; color: var(--muted); }
-
+    .setup-card h4 { margin:0; font-size:1rem; }
+    .rank { width:34px; height:34px; border-radius:12px; display:grid; place-items:center; background:rgba(255,255,255,0.06); font-weight:800; }
+    .setup-head { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; }
+    .target-line { font-weight:600; margin:10px 0; }
+    .risk-box { background: linear-gradient(180deg, rgba(41, 15, 18, 0.92), rgba(18, 9, 12, 0.96)); border-color: rgba(248,113,113,0.18); }
+    .footer-grid { grid-template-columns: 1fr auto; align-items:center; color: var(--muted); }
+    .small { font-size:0.88rem; }
     @media (max-width: 1100px) {
-      .hero-grid, .grid-2, .cards, .setup-grid, .steps { grid-template-columns: 1fr; }
-      .snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-grid, .grid-2, .setup-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 760px) {
-      .nav-inner, .terminal-head, .footer-grid, .row { flex-direction: column; align-items: flex-start; }
-      .hero-stats, .snapshot-grid { grid-template-columns: 1fr; }
+      .nav-inner, .row, .footer-grid { flex-direction:column; align-items:flex-start; }
+      .stats, .snapshot-grid { grid-template-columns: 1fr; }
       h1 { max-width: 12ch; }
-      th, td { padding: 12px; font-size: 0.92rem; }
     }
   </style>
 </head>
 <body>
   <nav class="nav">
     <div class="container nav-inner">
-      <div class="brand">
-        <div class="brand-mark">↕</div>
-        <div>
-          <div>PDH / PDL Trade Map</div>
-          <small class="micro">Previous Day Range Strategy Dashboard</small>
-        </div>
-      </div>
+      <div class="brand">PDH / PDL Trade Map</div>
       <div class="nav-links">
         <a href="#snapshot">Snapshot</a>
         <a href="#levels">PDH / PDL</a>
         <a href="#buy-setups">Buy Setups</a>
         <a href="#sell-setups">Sell Setups</a>
-        <a href="#playbook">Playbook</a>
         <a href="#risk">Risk</a>
       </div>
     </div>
@@ -219,181 +101,56 @@
   <header class="hero container">
     <div class="hero-grid">
       <div>
-        <div class="tag">London Session Framework • Range Raid + Continuation Logic</div>
+        <div class="tag">Hourly-updated market dashboard</div>
         <h1>Trade the prior day. Execute the current day.</h1>
-        <p>
-          This concept reframes the site as a trader's dashboard: current market snapshot up top, yesterday's high and low as the core map,
-          then ranked buy and sell setups based on whether price sweeps, rejects, or accepts beyond PDH / PDL.
-        </p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#levels">View PDH / PDL map</a>
-          <a class="button button-secondary" href="#playbook">Read the setup logic</a>
+        <p class="muted">A live-data version of the PDH / PDL dashboard. Current prices, yesterday's high and low, and ranked buy/sell setups rendered from hourly-updated JSON.</p>
+        <div class="button-row">
+          <a class="button primary" href="#levels">View PDH / PDL map</a>
+          <a class="button secondary" href="#buy-setups">See ranked setups</a>
         </div>
-        <div class="hero-stats">
-          <div class="card">
-            <div class="label">Primary trigger</div>
-            <div class="value">Sweep + reclaim / break + hold</div>
-          </div>
-          <div class="card">
-            <div class="label">Best timing</div>
-            <div class="value">London open to NY overlap</div>
-          </div>
-          <div class="card">
-            <div class="label">Risk structure</div>
-            <div class="value">Defined invalidation beyond the raid</div>
-          </div>
+        <div class="stats">
+          <div class="stat"><div class="label">Data source</div><div class="value" id="data-source">Loading…</div></div>
+          <div class="stat"><div class="label">Last updated</div><div class="value" id="last-updated">Loading…</div></div>
+          <div class="stat"><div class="label">Markets tracked</div><div class="value" id="market-count">Loading…</div></div>
         </div>
       </div>
-
-      <div class="panel terminal">
-        <div class="terminal-head">
+      <div class="panel">
+        <div class="row" style="margin-bottom:14px;">
           <div>
-            <h2>Execution board</h2>
-            <p class="micro">Focus: indices, majors, gold, and clean prior-day levels</p>
+            <h2 style="margin:0;">Execution board</h2>
+            <div class="muted small" id="update-note">Loading latest dataset…</div>
           </div>
-          <div class="clock" id="utcClock">UTC 08:32</div>
+          <div class="tag" id="clock">UTC</div>
         </div>
-        <div class="snapshot-grid">
-          <div class="quote">
-            <div class="row"><span class="symbol">EUR/USD</span><span class="up">+0.24%</span></div>
-            <div class="price">1.0874</div>
-            <div class="micro">Holding above Asia range, pressing toward PDH</div>
-            <div class="spark"></div>
-          </div>
-          <div class="quote">
-            <div class="row"><span class="symbol">GBP/USD</span><span class="up">+0.31%</span></div>
-            <div class="price">1.2748</div>
-            <div class="micro">Strong bid after shallow PDL sweep</div>
-            <div class="spark"></div>
-          </div>
-          <div class="quote">
-            <div class="row"><span class="symbol">XAU/USD</span><span class="down">-0.18%</span></div>
-            <div class="price">2336.20</div>
-            <div class="micro">Rejecting under PDH, watching for mean reversion</div>
-            <div class="spark"></div>
-          </div>
-          <div class="quote">
-            <div class="row"><span class="symbol">US30</span><span class="warn">+0.05%</span></div>
-            <div class="price">39,812</div>
-            <div class="micro">Inside yesterday's range, waiting for expansion</div>
-            <div class="spark"></div>
-          </div>
-        </div>
+        <div class="snapshot-grid" id="snapshot-grid"></div>
       </div>
     </div>
   </header>
 
   <main class="container">
-    <section id="snapshot">
-      <div class="section-head">
-        <div class="pill">Current market snapshot</div>
-        <p>Quick scan of instruments where PDH / PDL tends to matter: liquid FX majors, gold, and index futures behaviour.</p>
-      </div>
-      <div class="cards">
-        <div class="panel card">
-          <div class="mini-head">
-            <h3>What the tape says right now</h3>
-            <span class="bias-long">Risk tone mildly bid</span>
-          </div>
-          <ul>
-            <li>EUR/USD and GBP/USD are rotating above their London opening ranges.</li>
-            <li>Gold is stalling below a prior-day high retest, making it useful for sell-side rejection logic.</li>
-            <li>US30 remains inside value, so the first clean PDH/PDL break likely sets intraday direction.</li>
-          </ul>
-        </div>
-        <div class="panel card">
-          <div class="mini-head">
-            <h3>What matters next</h3>
-            <span class="bias-neutral">Wait for confirmation</span>
-          </div>
-          <ul>
-            <li>Does price sweep a prior-day extreme and snap back inside range?</li>
-            <li>Or does it break, hold above/below, and turn the level into support or resistance?</li>
-            <li>The strategy only pays when the level reaction is obvious enough to define the stop.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
     <section id="levels">
       <div class="section-head">
         <div class="pill">PDH / PDL table</div>
-        <p>Yesterday's high and low are the backbone. The dashboard ranks opportunities by distance to level, reaction quality, and room to target.</p>
+        <p class="muted">Yesterday's high and low remain the strategy backbone. This table is fed from the latest JSON snapshot.</p>
       </div>
       <div class="grid-2">
-        <div class="table-wrap">
+        <div class="table-wrap panel">
           <table>
             <thead>
               <tr>
-                <th>Market</th>
-                <th>Current</th>
-                <th>PDH</th>
-                <th>PDL</th>
-                <th>Distance / context</th>
-                <th>Bias</th>
+                <th>Market</th><th>Current</th><th>PDH</th><th>PDL</th><th>Context</th><th>Bias</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>EUR/USD</td>
-                <td>1.0874</td>
-                <td>1.0886</td>
-                <td>1.0818</td>
-                <td>12 pips under PDH after higher low</td>
-                <td><span class="bias-long">Long above reclaim</span></td>
-              </tr>
-              <tr>
-                <td>GBP/USD</td>
-                <td>1.2748</td>
-                <td>1.2762</td>
-                <td>1.2699</td>
-                <td>Recovered fast after 6-pip PDL sweep</td>
-                <td><span class="bias-long">Long on continuation</span></td>
-              </tr>
-              <tr>
-                <td>XAU/USD</td>
-                <td>2336.20</td>
-                <td>2342.80</td>
-                <td>2318.60</td>
-                <td>Failed first test beneath PDH</td>
-                <td><span class="bias-short">Short on rejection</span></td>
-              </tr>
-              <tr>
-                <td>US30</td>
-                <td>39,812</td>
-                <td>39,940</td>
-                <td>39,510</td>
-                <td>Mid-range, compression state</td>
-                <td><span class="bias-neutral">Neutral until break</span></td>
-              </tr>
-              <tr>
-                <td>NAS100</td>
-                <td>18,244</td>
-                <td>18,310</td>
-                <td>18,102</td>
-                <td>Holding premium half of range</td>
-                <td><span class="bias-long">Long if PDH accepts</span></td>
-              </tr>
-              <tr>
-                <td>USD/JPY</td>
-                <td>154.62</td>
-                <td>154.88</td>
-                <td>153.94</td>
-                <td>Still below PDH, weaker follow-through</td>
-                <td><span class="bias-short">Fade failed breakout</span></td>
-              </tr>
-            </tbody>
+            <tbody id="levels-body"></tbody>
           </table>
         </div>
-
-        <div class="panel card">
-          <h3>Setup rationale</h3>
-          <p class="micro">Why PDH / PDL works</p>
+        <div class="panel">
+          <h3 style="margin-top:0;">How it works</h3>
+          <p class="muted">The update script computes yesterday's high/low from the most recent fully closed daily candle, then ranks setups around rejection, reclaim, breakout, and hold.</p>
           <ul>
-            <li>Prior-day extremes are visible liquidity pools. Stops often cluster just outside them.</li>
-            <li>When price raids PDH or PDL and rejects, trapped breakout traders fuel the reversal.</li>
-            <li>When price breaks and then holds the level, it shows acceptance and often expands further.</li>
-            <li>The level gives a clean invalidation point, which keeps risk measurable rather than emotional.</li>
+            <li>Only structured market data should feed this page.</li>
+            <li>PDH / PDL gives cleaner invalidation than vague signal pages.</li>
+            <li>Hourly refresh is enough for this style without overcomplicating it.</li>
           </ul>
         </div>
       </div>
@@ -402,159 +159,27 @@
     <section id="buy-setups">
       <div class="section-head">
         <div class="pill">Top 5 buy setups</div>
-        <p>These longs are ranked by clean level interaction, reclaim potential, and available space to next objective.</p>
+        <p class="muted">Ranked longs based on PDH / PDL interaction, reclaim quality, and available room.</p>
       </div>
-      <div class="setup-grid">
-        <article class="setup-card long">
-          <div class="setup-head"><div class="rank">1</div><div><h4>GBP/USD</h4><div class="micro">PDL sweep → fast reclaim</div></div></div>
-          <div class="target-line">Entry: 1.2738–1.2744 • Stop: below 1.2696 • Target: 1.2762 / 1.2784</div>
-          <ul>
-            <li>Classic sell-side liquidity grab under yesterday's low.</li>
-            <li>Immediate return inside range shows rejection, not acceptance.</li>
-            <li>Best if London keeps defending higher lows.</li>
-          </ul>
-        </article>
-        <article class="setup-card long">
-          <div class="setup-head"><div class="rank">2</div><div><h4>EUR/USD</h4><div class="micro">Pressure into PDH</div></div></div>
-          <div class="target-line">Entry: on hold above 1.0886 • Stop: back under breakout candle • Target: 1.0910</div>
-          <ul>
-            <li>Trend structure already firm with bids above intraday support.</li>
-            <li>Trade only after a candle closes and holds above PDH.</li>
-            <li>Continuation setup, not a blind breakout chase.</li>
-          </ul>
-        </article>
-        <article class="setup-card long">
-          <div class="setup-head"><div class="rank">3</div><div><h4>NAS100</h4><div class="micro">Acceptance above range high</div></div></div>
-          <div class="target-line">Entry: 18,314 retest • Stop: 18,276 • Target: 18,380</div>
-          <ul>
-            <li>Index already holding premium, so breakout could trend cleanly.</li>
-            <li>Retest preferred over first touch.</li>
-            <li>Needs broad risk sentiment to stay constructive.</li>
-          </ul>
-        </article>
-        <article class="setup-card long">
-          <div class="setup-head"><div class="rank">4</div><div><h4>US30</h4><div class="micro">Range expansion long</div></div></div>
-          <div class="target-line">Entry: 39,944 hold • Stop: 39,870 • Target: 40,080</div>
-          <ul>
-            <li>Only valid if price leaves the middle and accepts above PDH.</li>
-            <li>Good candidate for session momentum trade.</li>
-            <li>Avoid if breakout volume is weak or instantly fades.</li>
-          </ul>
-        </article>
-        <article class="setup-card long">
-          <div class="setup-head"><div class="rank">5</div><div><h4>AUD/USD</h4><div class="micro">Discount reclaim from PDL</div></div></div>
-          <div class="target-line">Entry: 0.6621 reclaim • Stop: 0.6602 • Target: 0.6654</div>
-          <ul>
-            <li>Cleaner if the dollar softens across majors.</li>
-            <li>Reward improves when Asia low aligns with PDL sweep.</li>
-            <li>Take partials before full return to PDH if momentum stalls.</li>
-          </ul>
-        </article>
-      </div>
+      <div class="setup-grid" id="buy-grid"></div>
     </section>
 
     <section id="sell-setups">
       <div class="section-head">
         <div class="pill">Top 5 sell setups</div>
-        <p>These shorts lean on failed acceptance above PDH, premium reversals, or breakdowns below PDL that hold.</p>
+        <p class="muted">Ranked shorts based on rejection, breakdown, and failed acceptance.</p>
       </div>
-      <div class="setup-grid">
-        <article class="setup-card short">
-          <div class="setup-head"><div class="rank">1</div><div><h4>XAU/USD</h4><div class="micro">PDH rejection short</div></div></div>
-          <div class="target-line">Entry: 2339.8–2341.6 • Stop: above 2343.4 • Target: 2331.2 / 2324.0</div>
-          <ul>
-            <li>Gold often runs extremes hard, so failed highs can unwind fast.</li>
-            <li>Best version is a wick through PDH with close back below.</li>
-            <li>Keep size sensible; volatility is higher than majors.</li>
-          </ul>
-        </article>
-        <article class="setup-card short">
-          <div class="setup-head"><div class="rank">2</div><div><h4>USD/JPY</h4><div class="micro">Failed breakout fade</div></div></div>
-          <div class="target-line">Entry: below 154.55 after rejection • Stop: above 154.90 • Target: 154.10</div>
-          <ul>
-            <li>Market is struggling to re-accept above yesterday's high.</li>
-            <li>Works best when the dollar weakens broadly.</li>
-            <li>Do not short straight into PDL without room.</li>
-          </ul>
-        </article>
-        <article class="setup-card short">
-          <div class="setup-head"><div class="rank">3</div><div><h4>EUR/USD</h4><div class="micro">False break above PDH</div></div></div>
-          <div class="target-line">Entry: after failed hold above 1.0886 • Stop: above false-break high • Target: 1.0859</div>
-          <ul>
-            <li>Countertrend only if breakout buyers get trapped quickly.</li>
-            <li>Needs sharp rejection, not a slow drift.</li>
-            <li>Stronger if DXY turns up at the same time.</li>
-          </ul>
-        </article>
-        <article class="setup-card short">
-          <div class="setup-head"><div class="rank">4</div><div><h4>US30</h4><div class="micro">PDL breakdown continuation</div></div></div>
-          <div class="target-line">Entry: 39,500 retest from below • Stop: 39,566 • Target: 39,360</div>
-          <ul>
-            <li>Only valid after clean acceptance below yesterday's low.</li>
-            <li>Best if cash open adds momentum to the downside.</li>
-            <li>Skip if breakdown happens after extended one-way move.</li>
-          </ul>
-        </article>
-        <article class="setup-card short">
-          <div class="setup-head"><div class="rank">5</div><div><h4>GBP/USD</h4><div class="micro">PDH trap in premium</div></div></div>
-          <div class="target-line">Entry: 1.2760 rejection • Stop: above 1.2774 • Target: 1.2728</div>
-          <ul>
-            <li>This is the opposite-side play if the buy setup fails at PDH.</li>
-            <li>Ideal when price spikes the level and loses it immediately.</li>
-            <li>Keep expectations tactical, not swing-sized.</li>
-          </ul>
-        </article>
-      </div>
-    </section>
-
-    <section id="playbook">
-      <div class="section-head">
-        <div class="pill">Strategy explainer</div>
-        <p>The site now teaches the playbook directly instead of looking like a generic signal page.</p>
-      </div>
-      <div class="panel explain">
-        <h3>Previous Day High / Previous Day Low playbook</h3>
-        <p>
-          PDH and PDL are not magic lines. They are reference points where liquidity tends to sit. The edge comes from reading how price behaves when it reaches those zones: rejection, acceptance, or a stop run that snaps back.
-        </p>
-        <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <h4>Mark the range</h4>
-            <p class="micro">Plot yesterday's high and low before London opens. Ignore noise; respect the full session range.</p>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <h4>Wait for interaction</h4>
-            <p class="micro">Let price reach PDH or PDL. The level itself matters less than the reaction around it.</p>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <h4>Choose the model</h4>
-            <p class="micro">Trade the rejection if the sweep fails. Trade continuation if the break holds and retests cleanly.</p>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <h4>Define invalidation</h4>
-            <p class="micro">Stop goes beyond the raid or failed retest. If that level breaks again, your idea is wrong.</p>
-          </div>
-        </div>
-      </div>
+      <div class="setup-grid" id="sell-grid"></div>
     </section>
 
     <section id="risk">
-      <div class="section-head">
-        <div class="pill">Risk / disclaimer</div>
-        <p>Clear language for a trading audience: precise, realistic, and not promotional.</p>
-      </div>
       <div class="risk-box">
-        <h3>Risk comes first</h3>
-        <ul class="risk-list">
-          <li>This dashboard is educational and illustrative. It is not financial advice, investment advice, or a promise of results.</li>
-          <li>Markets can gap, slip, and overshoot prior-day levels. PDH / PDL reactions fail often enough that every trade must be pre-sized.</li>
-          <li>Never risk money you cannot afford to lose. One good setup does not justify oversized risk.</li>
-          <li>Use hard invalidation, respect news events, and avoid forcing trades when price is trapped in the middle of the range.</li>
-          <li>If you cannot explain where your stop goes and why, you do not have a valid setup yet.</li>
+        <h3 style="margin-top:0;">Risk / disclaimer</h3>
+        <ul>
+          <li>This dashboard is informational and educational. It is not financial advice.</li>
+          <li>PDH / PDL reactions fail often enough that every setup still needs defined invalidation.</li>
+          <li>Do not risk money you cannot afford to lose.</li>
+          <li>If the data feed breaks, the update workflow should preserve the last known good dataset rather than publishing bad output.</li>
         </ul>
       </div>
     </section>
@@ -564,23 +189,75 @@
     <div class="container footer-grid">
       <div>
         <strong>PDH / PDL Trade Map</strong><br />
-        <span>Static single-page concept built for GitHub Pages deployment.</span>
+        <span class="small">Live-data GitHub Pages version</span>
       </div>
-      <div class="micro">Focus on liquidity, level reaction, and controlled risk.</div>
+      <div class="small">Built for hourly JSON updates</div>
     </div>
   </footer>
 
   <script>
-    const clock = document.getElementById('utcClock');
+    const fmt = (n, digits = 4) => typeof n === 'number' ? n.toFixed(digits) : n;
+    const currencyLike = (symbol, n) => symbol.includes('US30') || symbol.includes('NAS100') ? Number(n).toLocaleString('en-GB') : Number(n).toFixed(symbol.includes('XAU') ? 2 : 4);
+    function biasClass(bias) { return bias === 'long' ? 'long' : bias === 'short' ? 'short' : 'neutral'; }
+    function renderSnapshot(markets) {
+      document.getElementById('snapshot-grid').innerHTML = markets.map(m => `
+        <div class="quote">
+          <div class="row"><span class="symbol">${m.symbol}</span><span class="bias ${biasClass(m.bias)}">${m.bias.toUpperCase()}</span></div>
+          <div class="price">${currencyLike(m.symbol, m.price)}</div>
+          <div class="muted small">${m.contextLine}</div>
+        </div>
+      `).join('');
+    }
+    function renderLevels(markets) {
+      document.getElementById('levels-body').innerHTML = markets.map(m => `
+        <tr>
+          <td>${m.symbol}</td>
+          <td>${currencyLike(m.symbol, m.price)}</td>
+          <td>${currencyLike(m.symbol, m.previousDayHigh)}</td>
+          <td>${currencyLike(m.symbol, m.previousDayLow)}</td>
+          <td>${m.contextLine}</td>
+          <td><span class="bias ${biasClass(m.bias)}">${m.bias.toUpperCase()}</span></td>
+        </tr>
+      `).join('');
+    }
+    function setupCard(m, side, idx) {
+      const s = side === 'buy' ? m.buySetup : m.sellSetup;
+      return `
+        <article class="setup-card">
+          <div class="setup-head"><div class="rank">${idx + 1}</div><div><h4>${m.symbol}</h4><div class="muted small">${s.title}</div></div></div>
+          <div class="target-line">Entry: ${s.entry} • Target: ${s.target}</div>
+          <div class="muted small">${m.contextLine}</div>
+        </article>
+      `;
+    }
+    function renderSetups(markets) {
+      const buys = markets.filter(m => m.bias === 'long' || m.bias === 'neutral').slice(0, 5);
+      const sells = markets.filter(m => m.bias === 'short' || m.bias === 'neutral').slice(0, 5);
+      document.getElementById('buy-grid').innerHTML = buys.map((m, i) => setupCard(m, 'buy', i)).join('');
+      document.getElementById('sell-grid').innerHTML = sells.map((m, i) => setupCard(m, 'sell', i)).join('');
+    }
     function updateClock() {
       const now = new Date();
-      const text = now.toLocaleTimeString('en-GB', {
-        hour: '2-digit', minute: '2-digit', timeZone: 'UTC', hour12: false
-      });
-      clock.textContent = `UTC ${text}`;
+      document.getElementById('clock').textContent = 'UTC ' + now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' });
     }
     updateClock();
     setInterval(updateClock, 60000);
+
+    fetch('./data/latest.json', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('data-source').textContent = data.dataSource;
+        document.getElementById('last-updated').textContent = new Date(data.generatedAtUtc).toLocaleString('en-GB');
+        document.getElementById('market-count').textContent = data.markets.length;
+        document.getElementById('update-note').textContent = `Latest snapshot generated ${new Date(data.generatedAtUtc).toLocaleString('en-GB')} • Refresh target: hourly`;
+        renderSnapshot(data.markets);
+        renderLevels(data.markets);
+        renderSetups(data.markets);
+      })
+      .catch(err => {
+        document.getElementById('update-note').textContent = 'Could not load live dataset.';
+        console.error(err);
+      });
   </script>
 </body>
 </html>
