@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PulseFX Scanner — Forex Market Dashboard</title>
+  <meta name="description" content="A polished single-page concept for a forex-first market dashboard showing live-style prices, top buy opportunities, and top sell opportunities." />
+  <style>
+    :root {
+      --bg: #081120;
+      --panel: rgba(10, 18, 34, 0.8);
+      --panel-strong: #0d1730;
+      --line: rgba(148, 163, 184, 0.16);
+      --text: #e5eefb;
+      --muted: #9fb0cc;
+      --green: #2dd4bf;
+      --green-soft: rgba(45, 212, 191, 0.14);
+      --red: #fb7185;
+      --red-soft: rgba(251, 113, 133, 0.14);
+      --gold: #fbbf24;
+      --blue: #60a5fa;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(45, 212, 191, 0.12), transparent 28%),
+        linear-gradient(180deg, #07101f 0%, #091425 48%, #050b16 100%);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    .container { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+      background: rgba(7, 16, 31, 0.72);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      display: grid;
+      place-items: center;
+      box-shadow: 0 12px 30px rgba(45, 212, 191, 0.18);
+      font-size: 1.1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .hero {
+      padding: 72px 0 34px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .eyebrow,
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(96, 165, 250, 0.18);
+      background: rgba(96, 165, 250, 0.08);
+      border-radius: 999px;
+      color: #cfe3ff;
+      font-size: 0.84rem;
+    }
+
+    h1 {
+      margin: 18px 0 16px;
+      font-size: clamp(2.3rem, 5vw, 4.8rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      max-width: 11ch;
+    }
+
+    .hero p {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 62ch;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .button {
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .button:hover { transform: translateY(-1px); }
+    .button-primary {
+      background: linear-gradient(135deg, var(--blue), #2563eb);
+      box-shadow: 0 16px 34px rgba(37, 99, 235, 0.28);
+    }
+    .button-secondary {
+      border-color: rgba(148, 163, 184, 0.18);
+      background: rgba(255, 255, 255, 0.02);
+      color: #d6e3f7;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .mini-card,
+    .panel,
+    .signal-card,
+    .feature,
+    .faq-item,
+    .footer-cta {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .mini-card {
+      padding: 14px 16px;
+    }
+
+    .mini-card .label { color: var(--muted); font-size: 0.84rem; }
+    .mini-card .value { margin-top: 6px; font-size: 1.15rem; font-weight: 700; }
+
+    .dashboard-preview {
+      padding: 22px;
+      background: linear-gradient(180deg, rgba(12, 23, 48, 0.95), rgba(8, 17, 32, 0.92));
+    }
+
+    .preview-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .preview-head h2 { margin: 0; font-size: 1.1rem; }
+    .preview-head p { margin: 4px 0 0; font-size: 0.88rem; color: var(--muted); }
+
+    .status {
+      font-size: 0.84rem;
+      color: #d9fef3;
+      background: rgba(45, 212, 191, 0.12);
+      border: 1px solid rgba(45, 212, 191, 0.18);
+      padding: 8px 10px;
+      border-radius: 999px;
+    }
+
+    .ticker-grid,
+    .signals,
+    .features,
+    .faq,
+    .footer-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .ticker-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-bottom: 18px;
+    }
+
+    .ticker {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .ticker-top,
+    .row,
+    .signal-head,
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ticker-top { margin-bottom: 10px; }
+    .pair { font-weight: 700; }
+    .subtle, small { color: var(--muted); }
+    .move-up { color: var(--green); }
+    .move-down { color: var(--red); }
+
+    .spark {
+      height: 42px;
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(96,165,250,0.12), transparent),
+        repeating-linear-gradient(90deg, rgba(148,163,184,0.08), rgba(148,163,184,0.08) 1px, transparent 1px, transparent 24px),
+        linear-gradient(120deg, transparent 0 8%, rgba(45,212,191,0.45) 8% 12%, transparent 12% 16%, rgba(96,165,250,0.45) 16% 22%, transparent 22% 100%);
+      border: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    section {
+      padding: 34px 0;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .section-head h2 {
+      margin: 0 0 8px;
+      font-size: clamp(1.7rem, 3vw, 2.4rem);
+      letter-spacing: -0.03em;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 62ch;
+    }
+
+    .signals {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .signal-card {
+      padding: 22px;
+    }
+
+    .signal-card.buy { border-color: rgba(45, 212, 191, 0.22); }
+    .signal-card.sell { border-color: rgba(251, 113, 133, 0.22); }
+
+    .signal-head { margin-bottom: 16px; }
+    .signal-head h3 { margin: 0; font-size: 1.15rem; }
+
+    .tag {
+      padding: 8px 11px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .tag.buy { background: var(--green-soft); color: #a7fff1; }
+    .tag.sell { background: var(--red-soft); color: #ffd0d8; }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .list-item {
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      align-items: start;
+    }
+
+    .list-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .score {
+      min-width: 68px;
+      text-align: center;
+      padding: 10px 10px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 0.96rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .details strong { display: block; font-size: 1rem; }
+    .details small { display: block; margin-top: 5px; }
+
+    .rationale {
+      margin-top: 4px;
+      font-size: 0.92rem;
+      color: #c9d8ee;
+    }
+
+    .features {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .feature {
+      padding: 22px;
+    }
+
+    .feature .icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      background: rgba(96, 165, 250, 0.12);
+      color: #d8e7ff;
+    }
+
+    .feature h3 { margin: 0 0 10px; }
+    .feature p { margin: 0; color: var(--muted); }
+
+    .disclaimer {
+      padding: 24px;
+      border-radius: 20px;
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.18);
+      color: #fff1c4;
+    }
+
+    .faq { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .faq-item { padding: 22px; }
+    .faq-item h3 { margin: 0 0 10px; font-size: 1rem; }
+    .faq-item p { margin: 0; color: var(--muted); }
+
+    .footer {
+      padding: 12px 0 48px;
+    }
+
+    .footer-cta {
+      padding: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .footer-cta::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -40% auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(96,165,250,0.25), transparent 62%);
+    }
+
+    .footer-grid {
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: center;
+    }
+
+    .footer h2 { margin: 0 0 10px; }
+    .footer p { margin: 0; color: var(--muted); }
+
+    .meta-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.87rem;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .signals,
+      .features,
+      .faq,
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-points,
+      .ticker-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav-inner,
+      .preview-head,
+      .section-head,
+      .signal-head,
+      .row,
+      .list-item {
+        align-items: flex-start;
+      }
+
+      .nav-inner,
+      .preview-head,
+      .section-head,
+      .signal-head,
+      .row {
+        flex-direction: column;
+      }
+
+      .hero {
+        padding-top: 48px;
+      }
+
+      .hero-points,
+      .ticker-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-mark">↗</div>
+        <div>
+          <div>PulseFX Scanner</div>
+          <small>Forex-first market dashboard concept</small>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="#scanner">Scanner</a>
+        <a href="#opportunities">Top setups</a>
+        <a href="#why-it-works">Why it works</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="eyebrow">Live-style market view • Forex first • Gold optional</div>
+        <h1>See price action and the strongest setups in one glance.</h1>
+        <p>
+          A clean market scanner concept that highlights current prices, momentum context, and the top 5 buy opportunities plus top 5 sell opportunities across major FX pairs. Built to inform decisions, not promise outcomes.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#opportunities">View top opportunities</a>
+          <a class="button button-secondary" href="#disclaimer">Read use case & disclaimer</a>
+        </div>
+        <div class="hero-points">
+          <div class="mini-card">
+            <div class="label">Pairs covered</div>
+            <div class="value">Majors + crosses</div>
+          </div>
+          <div class="mini-card">
+            <div class="label">Optional asset</div>
+            <div class="value">XAU/USD (Gold)</div>
+          </div>
+          <div class="mini-card">
+            <div class="label">Signal framing</div>
+            <div class="value">Scanner, not advice</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel dashboard-preview" id="scanner">
+        <div class="preview-head">
+          <div>
+            <h2>Today’s market snapshot</h2>
+            <p>Illustrative dashboard preview for a landing page or GitHub Pages demo.</p>
+          </div>
+          <div class="status">Scanner active • London / NY overlap</div>
+        </div>
+
+        <div class="ticker-grid">
+          <div class="ticker">
+            <div class="ticker-top"><span class="pair">EUR/USD</span><span class="move-up">+0.34%</span></div>
+            <div class="row"><strong>1.0874</strong><small>Trend: bullish intraday</small></div>
+            <div class="spark" aria-hidden="true"></div>
+          </div>
+          <div class="ticker">
+            <div class="ticker-top"><span class="pair">GBP/USD</span><span class="move-up">+0.27%</span></div>
+            <div class="row"><strong>1.2741</strong><small>Trend: breakout watch</small></div>
+            <div class="spark" aria-hidden="true"></div>
+          </div>
+          <div class="ticker">
+            <div class="ticker-top"><span class="pair">USD/JPY</span><span class="move-down">-0.22%</span></div>
+            <div class="row"><strong>151.64</strong><small>Trend: pullback under resistance</small></div>
+            <div class="spark" aria-hidden="true"></div>
+          </div>
+          <div class="ticker">
+            <div class="ticker-top"><span class="pair">XAU/USD</span><span style="color: var(--gold);">Gold focus</span></div>
+            <div class="row"><strong>2328.70</strong><small>Optional metal scanner</small></div>
+            <div class="spark" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="row subtle">
+          <span>Updated moments ago</span>
+          <span>Use with your own risk controls and confirmation</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="opportunities">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <div class="badge">Top-ranked setups</div>
+            <h2>Top 5 buy opportunities and top 5 sell opportunities</h2>
+            <p>Example copy and layout for ranking setups by trend alignment, momentum, volatility conditions, and proximity to key levels.</p>
+          </div>
+        </div>
+
+        <div class="signals">
+          <article class="signal-card buy">
+            <div class="signal-head">
+              <h3>Buy opportunities</h3>
+              <span class="tag buy">Bullish scans</span>
+            </div>
+            <div class="list">
+              <div class="list-item">
+                <div class="details">
+                  <strong>1. EUR/USD</strong>
+                  <small>Price 1.0874 • Above session VWAP • Higher highs intact</small>
+                  <div class="rationale">Momentum continuation after a clean retest of intraday support.</div>
+                </div>
+                <div class="score">92</div>
+              </div>
+              <div class="list-item">
+                <div class="details">
+                  <strong>2. GBP/USD</strong>
+                  <small>Price 1.2741 • Compression near breakout zone</small>
+                  <div class="rationale">Strength building into resistance with positive breadth across majors.</div>
+                </div>
+                <div class="score">89</div>
+              </div>
+              <div class="list-item">
+                <div class="details">
+                  <strong>3. AUD/USD</strong>
+                  <small>Price 0.6648 • Trend recovery on strong hourly closes</small>
+                  <div class="rationale">Pullback held prior structure, keeping upside continuation in focus.</div>
+                </div>
+                <div class="score">84</div>
+              </div>
+              <div class="list-item">
+                <div class="details">
+                  <strong>4. EUR/JPY</strong>
+                  <small>Price 164.93 • Relative strength pair leading the board</small>
+                  <div class="rationale">Cross remains constructive if risk sentiment stays supportive.</div>
+                </div>
+                <div class="score">81</div>
+              </div>
+              <div class="list-item">
+                <div class="details">
+                  <strong>5. XAU/USD</strong>
+                  <small>Price 2328.70 • Optional gold add-on</small>
+                  <div class="rationale">Gold bid remains intact above short-term support; volatility requires wider risk controls.</div>
+                </div>
+                <div class="score">78</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="signal-card sell">
+            <div class="signal-head">
+              <h3>Sell opportunities</h3>
+              <span class="tag sell">Bearish scans</span>
+            </div>
+            <div class="list">
+              <div class="list-item">
+                <div class="details">
+                  <strong>1. USD/JPY</strong>
+                  <small>Price 151.64 • Rejection under intraday resistance</small>
+                  <div class="rationale">Weak momentum on rebounds suggests fade setups remain attractive.</div>
+                </div>
+                <div class="score">91</div>
+              </div>
+              <div class="list-item">
+                <div class="details">
+                  <strong>2. USD/CHF</strong>
+                  <small>Price 0.9018 • Lower highs on short-term trend map</small>
+                  <div class="rationale">Pair is slipping below value area with sellers controlling rallies.</div>
+                </div>
+                <div class="score">87</div>
+              </div>
+              <div class="list-item">
+                <div class="details">
+                  <strong>3. EUR/GBP</strong>
+                  <small>Price 0.8534 • Failing to reclaim range midpoint</small>
+                  <div class="rationale">Momentum remains soft unless the pair retakes broken structure.</div>
+                </div>
+                <div class="score">82</div>
+              </div>
+              <div class="list-item">
+                <div class="details">
+                  <strong>4. NZD/USD</strong>
+                  <small>Price 0.5983 • Trend pressure under macro resistance</small>
+                  <div class="rationale">Bearish continuation stays on watch while lower highs keep printing.</div>
+                </div>
+                <div class="score">79</div>
+              </div>
+              <div class="list-item">
+                <div class="details">
+                  <strong>5. USD/CAD</strong>
+                  <small>Price 1.3627 • Range edge rejection candidate</small>
+                  <div class="rationale">Scanner flags this as conditional: better only if oil strength persists.</div>
+                </div>
+                <div class="score">75</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="why-it-works">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <div class="badge">Section structure</div>
+            <h2>How the page is positioned</h2>
+            <p>This concept is designed to feel credible, modern, and useful for traders looking for a fast market overview without making misleading claims.</p>
+          </div>
+        </div>
+
+        <div class="features">
+          <article class="feature">
+            <div class="icon">01</div>
+            <h3>Hero with market promise</h3>
+            <p>Lead with the value proposition: current prices, ranked setups, and a fast read on what is moving now in forex markets.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">02</div>
+            <h3>Snapshot dashboard preview</h3>
+            <p>Show a live-style panel with major pairs and gold so visitors instantly understand the product before scrolling.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">03</div>
+            <h3>Ranked scanner outputs</h3>
+            <p>Separate bullish and bearish opportunities. Include score, price, setup context, and a short rationale rather than “buy now” language.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">04</div>
+            <h3>Method transparency</h3>
+            <p>Explain that rankings come from trend, momentum, volatility, and key-level alignment so the tool feels informative rather than magical.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">05</div>
+            <h3>Responsible framing</h3>
+            <p>Repeat that it is a scanner for market information and trade preparation, not a promise of returns or personalized financial advice.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">06</div>
+            <h3>Clear next action</h3>
+            <p>Invite users to review the board, confirm with their own process, and use alerts or a dashboard login if this becomes a real product.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="disclaimer">
+      <div class="container">
+        <div class="disclaimer">
+          <strong>Important:</strong> PulseFX Scanner is presented as a market information and setup-ranking interface. It is not investment advice, does not guarantee results, and should not replace your own analysis, confirmation, or risk management. Prices and setup scores shown here are illustrative for concept review.
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <div class="badge">On-page copy ideas</div>
+            <h2>FAQ / trust-building copy</h2>
+            <p>These sections make the concept feel polished and reduce the risk of overstating what the dashboard can do.</p>
+          </div>
+        </div>
+
+        <div class="faq">
+          <article class="faq-item">
+            <h3>How are opportunities ranked?</h3>
+            <p>Each setup can be scored using a blend of price momentum, trend structure, volatility conditions, and distance from meaningful support or resistance areas.</p>
+          </article>
+          <article class="faq-item">
+            <h3>Does this tell me what to trade?</h3>
+            <p>No. The dashboard is best positioned as a scanner that helps you prioritize charts and spot conditions worth reviewing more closely.</p>
+          </article>
+          <article class="faq-item">
+            <h3>Why focus on forex first?</h3>
+            <p>FX majors create a clear, liquid starting point for a scanner product. Gold can be added as an optional market for users who want broader macro exposure.</p>
+          </article>
+          <article class="faq-item">
+            <h3>Can this work as a landing page?</h3>
+            <p>Yes. This single page is structured to work as a homepage, concept mockup, demo page, or a lightweight GitHub Pages deployment for stakeholder review.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-cta">
+        <div class="footer-grid">
+          <div>
+            <h2>Built to help traders scan faster, not skip discipline.</h2>
+            <p>Use this concept as a polished foundation for a forex dashboard, investor demo, landing page, or internal product mockup.</p>
+            <div class="meta-note">Static HTML • Mobile responsive • Suitable for local review or GitHub Pages</div>
+          </div>
+          <div class="hero-actions" style="justify-content: flex-start; margin: 0;">
+            <a class="button button-primary" href="#scanner">Back to snapshot</a>
+            <a class="button button-secondary" href="#opportunities">Review rankings</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
