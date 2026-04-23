@@ -10,9 +10,9 @@ const watchlist = [
   { symbol: 'EUR/USD', bias: 'long' },
   { symbol: 'GBP/USD', bias: 'long' },
   { symbol: 'USD/JPY', bias: 'short' },
-  { symbol: 'XAU/USD', bias: 'short' },
-  { symbol: 'US30', bias: 'neutral' },
-  { symbol: 'NAS100', bias: 'long' }
+  { symbol: 'AUD/USD', bias: 'long' },
+  { symbol: 'USD/CHF', bias: 'short' },
+  { symbol: 'XAU/USD', bias: 'short' }
 ];
 
 async function fetchJson(url) {
