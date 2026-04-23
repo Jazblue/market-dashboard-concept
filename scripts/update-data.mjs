@@ -9,10 +9,8 @@ if (!apiKey) {
 const watchlist = [
   { symbol: 'EUR/USD', bias: 'long' },
   { symbol: 'GBP/USD', bias: 'long' },
-  { symbol: 'USD/JPY', bias: 'short' },
   { symbol: 'AUD/USD', bias: 'long' },
-  { symbol: 'USD/CHF', bias: 'short' },
-  { symbol: 'XAU/USD', bias: 'short' }
+  { symbol: 'USD/CAD', bias: 'short' }
 ];
 
 async function fetchJson(url) {
@@ -22,46 +20,59 @@ async function fetchJson(url) {
 }
 
 function mapSetup(symbol, bias, price, pdh, pdl) {
-  const distanceHigh = Math.abs((pdh ?? price) - price);
-  const distanceLow = Math.abs(price - (pdl ?? price));
   return {
     symbol,
     price,
     previousDayHigh: pdh,
     previousDayLow: pdl,
     bias,
-    contextLine: distanceHigh < distanceLow ? `Closer to PDH than PDL` : `Closer to PDL than PDH`,
+    contextLine: price < pdh && price > pdl ? 'Trading inside previous day range' : price >= pdh ? 'Testing or above PDH' : 'Testing or below PDL',
     buySetup: {
       title: bias === 'short' ? 'Countertrend reclaim' : 'PDL reclaim / PDH break hold',
       entry: `Watch live structure around ${price}`,
-      target: `Move toward ${pdh ?? price}`
+      target: `Move toward ${pdh}`
     },
     sellSetup: {
       title: bias === 'long' ? 'Failed hold / rejection short' : 'PDH rejection / PDL break hold',
       entry: `Watch live structure around ${price}`,
-      target: `Move toward ${pdl ?? price}`
+      target: `Move toward ${pdl}`
     }
   };
+}
+
+async function fetchMarket(item) {
+  const dailyUrl = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(item.symbol)}&interval=1day&outputsize=5&apikey=${apiKey}`;
+  const daily = await fetchJson(dailyUrl);
+  if (!daily.values || daily.values.length < 2) {
+    throw new Error(`Not enough daily data for ${item.symbol}`);
+  }
+  const latestClosed = daily.values[0];
+  const price = Number(latestClosed.close);
+  const pdh = Number(latestClosed.high);
+  const pdl = Number(latestClosed.low);
+  return mapSetup(item.symbol, item.bias, price, pdh, pdl);
 }
 
 async function main() {
   const markets = [];
   for (const item of watchlist) {
-    const dailyUrl = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(item.symbol)}&interval=1day&outputsize=3&apikey=${apiKey}`;
-    const daily = await fetchJson(dailyUrl);
-    if (!daily.values || daily.values.length < 2) throw new Error(`Not enough daily data for ${item.symbol}`);
-    const latestClosed = daily.values[0];
-    const price = Number(latestClosed.close);
-    const pdh = Number(latestClosed.high);
-    const pdl = Number(latestClosed.low);
-    markets.push(mapSetup(item.symbol, item.bias, price, pdh, pdl));
+    try {
+      const market = await fetchMarket(item);
+      markets.push(market);
+    } catch (err) {
+      console.error(`Skipping ${item.symbol}: ${err.message}`);
+    }
+  }
+
+  if (!markets.length) {
+    throw new Error('No valid markets returned from Twelve Data');
   }
 
   const payload = {
     generatedAtUtc: new Date().toISOString(),
     dataSource: 'Twelve Data',
     timezoneUsedForDailyBars: 'Provider daily bars',
-    symbolsIncluded: watchlist.map(x => x.symbol),
+    symbolsIncluded: markets.map(x => x.symbol),
     staleAfterMinutes: 90,
     markets
   };
