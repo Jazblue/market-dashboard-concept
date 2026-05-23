@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-05-23T04:02:12.585Z",
+  "generatedAtUtc": "2026-05-23T06:40:45.331Z",
   "dataSource": "Twelve Data",
   "timezoneUsedForDailyBars": "Provider daily bars",
   "symbolsIncluded": [
@@ -32,7 +32,7 @@
       "symbol": "GBP/USD",
       "price": 1.34311,
       "previousDayHigh": 1.34419,
-      "previousDayLow": 1.34291,
+      "previousDayLow": 1.3429,
       "bias": "long",
       "contextLine": "Trading inside previous day range",
       "buySetup": {
@@ -43,42 +43,42 @@
       "sellSetup": {
         "title": "Failed hold / rejection short",
         "entry": "Watch live structure around 1.34311",
-        "target": "Move toward 1.34291"
+        "target": "Move toward 1.3429"
       }
     },
     {
       "symbol": "AUD/USD",
-      "price": 0.71281,
+      "price": 0.71284,
       "previousDayHigh": 0.71374,
       "previousDayLow": 0.71248,
       "bias": "long",
       "contextLine": "Trading inside previous day range",
       "buySetup": {
         "title": "PDL reclaim / PDH break hold",
-        "entry": "Watch live structure around 0.71281",
+        "entry": "Watch live structure around 0.71284",
         "target": "Move toward 0.71374"
       },
       "sellSetup": {
         "title": "Failed hold / rejection short",
-        "entry": "Watch live structure around 0.71281",
+        "entry": "Watch live structure around 0.71284",
         "target": "Move toward 0.71248"
       }
     },
     {
       "symbol": "USD/CAD",
-      "price": 1.38201,
+      "price": 1.38198,
       "previousDayHigh": 1.38282,
       "previousDayLow": 1.38128,
       "bias": "short",
       "contextLine": "Trading inside previous day range",
       "buySetup": {
         "title": "Countertrend reclaim",
-        "entry": "Watch live structure around 1.38201",
+        "entry": "Watch live structure around 1.38198",
         "target": "Move toward 1.38282"
       },
       "sellSetup": {
         "title": "PDH rejection / PDL break hold",
-        "entry": "Watch live structure around 1.38201",
+        "entry": "Watch live structure around 1.38198",
         "target": "Move toward 1.38128"
       }
     }
