@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-06-06T05:00:12.193Z",
+  "generatedAtUtc": "2026-06-06T07:51:30.358Z",
   "dataSource": "Twelve Data",
   "timezoneUsedForDailyBars": "Provider daily bars",
   "symbolsIncluded": [
@@ -12,37 +12,37 @@
   "markets": [
     {
       "symbol": "EUR/USD",
-      "price": 1.15214,
+      "price": 1.15218,
       "previousDayHigh": 1.15262,
       "previousDayLow": 1.15199,
       "bias": "long",
       "contextLine": "Trading inside previous day range",
       "buySetup": {
         "title": "PDL reclaim / PDH break hold",
-        "entry": "Watch live structure around 1.15214",
+        "entry": "Watch live structure around 1.15218",
         "target": "Move toward 1.15262"
       },
       "sellSetup": {
         "title": "Failed hold / rejection short",
-        "entry": "Watch live structure around 1.15214",
+        "entry": "Watch live structure around 1.15218",
         "target": "Move toward 1.15199"
       }
     },
     {
       "symbol": "GBP/USD",
-      "price": 1.33403,
+      "price": 1.33409,
       "previousDayHigh": 1.33674,
       "previousDayLow": 1.3331,
       "bias": "long",
       "contextLine": "Trading inside previous day range",
       "buySetup": {
         "title": "PDL reclaim / PDH break hold",
-        "entry": "Watch live structure around 1.33403",
+        "entry": "Watch live structure around 1.33409",
         "target": "Move toward 1.33674"
       },
       "sellSetup": {
         "title": "Failed hold / rejection short",
-        "entry": "Watch live structure around 1.33403",
+        "entry": "Watch live structure around 1.33409",
         "target": "Move toward 1.3331"
       }
     },
@@ -50,7 +50,7 @@
       "symbol": "AUD/USD",
       "price": 0.70421,
       "previousDayHigh": 0.7076,
-      "previousDayLow": 0.70393,
+      "previousDayLow": 0.70383,
       "bias": "long",
       "contextLine": "Trading inside previous day range",
       "buySetup": {
@@ -61,7 +61,7 @@
       "sellSetup": {
         "title": "Failed hold / rejection short",
         "entry": "Watch live structure around 0.70421",
-        "target": "Move toward 0.70393"
+        "target": "Move toward 0.70383"
       }
     },
     {
