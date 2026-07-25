@@ -1,5 +1,5 @@
 {
-  "generatedAtUtc": "2026-07-25T19:20:28.454Z",
+  "generatedAtUtc": "2026-07-25T21:02:22.828Z",
   "dataSource": "Twelve Data",
   "timezoneUsedForDailyBars": "Provider daily bars",
   "symbolsIncluded": [
@@ -12,74 +12,74 @@
   "markets": [
     {
       "symbol": "EUR/USD",
-      "price": 1.13763,
-      "previousDayHigh": 1.1379,
-      "previousDayLow": 1.13701,
+      "price": 1.13744,
+      "previousDayHigh": 1.13744,
+      "previousDayLow": 1.13742,
       "bias": "long",
-      "contextLine": "Trading inside previous day range",
+      "contextLine": "Testing or above PDH",
       "buySetup": {
         "title": "PDL reclaim / PDH break hold",
-        "entry": "Watch live structure around 1.13763",
-        "target": "Move toward 1.1379"
+        "entry": "Watch live structure around 1.13744",
+        "target": "Move toward 1.13744"
       },
       "sellSetup": {
         "title": "Failed hold / rejection short",
-        "entry": "Watch live structure around 1.13763",
-        "target": "Move toward 1.13701"
+        "entry": "Watch live structure around 1.13744",
+        "target": "Move toward 1.13742"
       }
     },
     {
       "symbol": "GBP/USD",
-      "price": 1.33237,
-      "previousDayHigh": 1.33257,
-      "previousDayLow": 1.33177,
+      "price": 1.33236,
+      "previousDayHigh": 1.33236,
+      "previousDayLow": 1.33234,
       "bias": "long",
-      "contextLine": "Trading inside previous day range",
+      "contextLine": "Testing or above PDH",
       "buySetup": {
         "title": "PDL reclaim / PDH break hold",
-        "entry": "Watch live structure around 1.33237",
-        "target": "Move toward 1.33257"
+        "entry": "Watch live structure around 1.33236",
+        "target": "Move toward 1.33236"
       },
       "sellSetup": {
         "title": "Failed hold / rejection short",
-        "entry": "Watch live structure around 1.33237",
-        "target": "Move toward 1.33177"
+        "entry": "Watch live structure around 1.33236",
+        "target": "Move toward 1.33234"
       }
     },
     {
       "symbol": "AUD/USD",
-      "price": 0.6982,
-      "previousDayHigh": 0.69872,
-      "previousDayLow": 0.69749,
+      "price": 0.69831,
+      "previousDayHigh": 0.69831,
+      "previousDayLow": 0.69829,
       "bias": "long",
-      "contextLine": "Trading inside previous day range",
+      "contextLine": "Testing or above PDH",
       "buySetup": {
         "title": "PDL reclaim / PDH break hold",
-        "entry": "Watch live structure around 0.6982",
-        "target": "Move toward 0.69872"
+        "entry": "Watch live structure around 0.69831",
+        "target": "Move toward 0.69831"
       },
       "sellSetup": {
         "title": "Failed hold / rejection short",
-        "entry": "Watch live structure around 0.6982",
-        "target": "Move toward 0.69749"
+        "entry": "Watch live structure around 0.69831",
+        "target": "Move toward 0.69829"
       }
     },
     {
       "symbol": "USD/CAD",
-      "price": 1.40939,
-      "previousDayHigh": 1.40988,
-      "previousDayLow": 1.40904,
+      "price": 1.4095,
+      "previousDayHigh": 1.4095,
+      "previousDayLow": 1.40947,
       "bias": "short",
-      "contextLine": "Trading inside previous day range",
+      "contextLine": "Testing or above PDH",
       "buySetup": {
         "title": "Countertrend reclaim",
-        "entry": "Watch live structure around 1.40939",
-        "target": "Move toward 1.40988"
+        "entry": "Watch live structure around 1.4095",
+        "target": "Move toward 1.4095"
       },
       "sellSetup": {
         "title": "PDH rejection / PDL break hold",
-        "entry": "Watch live structure around 1.40939",
-        "target": "Move toward 1.40904"
+        "entry": "Watch live structure around 1.4095",
+        "target": "Move toward 1.40947"
       }
     }
   ]
