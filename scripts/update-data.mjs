@@ -46,10 +46,14 @@ async function fetchMarket(item) {
   if (!daily.values || daily.values.length < 2) {
     throw new Error(`Not enough daily data for ${item.symbol}`);
   }
-  const latestClosed = daily.values[0];
-  const price = Number(latestClosed.close);
-  const pdh = Number(latestClosed.high);
-  const pdl = Number(latestClosed.low);
+  // Twelve Data returns daily bars in descending order (newest first).
+  // values[0] is the most recent candle (may be today's still-forming bar);
+  // values[1] is the most recent fully completed daily candle = previous day.
+  const latestCandle = daily.values[0];
+  const prevDayCandle = daily.values[1];
+  const price = Number(latestCandle.close);
+  const pdh = Number(prevDayCandle.high);
+  const pdl = Number(prevDayCandle.low);
   return mapSetup(item.symbol, item.bias, price, pdh, pdl);
 }
 
